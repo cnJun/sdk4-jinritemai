@@ -1,0 +1,11 @@
+*.DS_Store
+*.iml
+.idea/
+target/
+log/
+logs/
+app.pid
+nohup.log
+
+config.properties
+src/test/resources/message/
