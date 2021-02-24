@@ -3,13 +3,28 @@ package com.sdk4.jinritemai;
 import com.alibaba.fastjson.JSON;
 import com.sdk4.jinritemai.exception.ApiException;
 import com.sdk4.jinritemai.model.bean.DoudianProduct;
+import com.sdk4.jinritemai.model.bean.DoudianProductGetCateProperty;
 import com.sdk4.jinritemai.model.bean.DoudianSku;
 import com.sdk4.jinritemai.model.bean.DoudianSpec;
 import com.sdk4.jinritemai.model.request.*;
 import com.sdk4.jinritemai.model.response.*;
+import java.util.List;
 import org.testng.annotations.Test;
 
 public class DoudianProductTest extends DoudianClientTest {
+    @Test
+    public void testGetCateProperty() throws ApiException {
+        DoudianProductGetCatePropertyRequest request = new DoudianProductGetCatePropertyRequest();
+        request.setCategoryLeafId("20716");
+        DoudianProductGetCatePropertyResponse response = getClient().execute(request);
+        if (!response.isSuccess()) {
+            System.err.println("根据商品分类获取对应的属性列表失败:" + response.getMessage());
+        } else {
+            List<DoudianProductGetCateProperty> properties = response.getData();
+            System.out.println(JSON.toJSONString(properties));
+        }
+    }
+
     @Test
     public void testProductDetail() throws ApiException {
         DoudianProductDetailRequest request = new DoudianProductDetailRequest();
