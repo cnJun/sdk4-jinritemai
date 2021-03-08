@@ -8,10 +8,73 @@ import com.sdk4.jinritemai.model.bean.DoudianSku;
 import com.sdk4.jinritemai.model.bean.DoudianSpec;
 import com.sdk4.jinritemai.model.request.*;
 import com.sdk4.jinritemai.model.response.*;
-import java.util.List;
 import org.testng.annotations.Test;
+import org.testng.collections.Maps;
+
+import java.util.List;
+import java.util.Map;
 
 public class DoudianProductTest extends DoudianClientTest {
+    @Test
+    public void testProductAddV2ByGeneralRequest() throws ApiException {
+        Map<String, Object> spuParamMap = Maps.newHashMap();
+        spuParamMap.put("brand_id", ""); //fixme: 填写正确的品牌
+        spuParamMap.put("category_leaf_id", "22370");
+        spuParamMap.put("commit", "true");
+        spuParamMap.put("delivery_delay_day", "2");
+        spuParamMap.put("description", "https://sf6-ttcdn-tos.pstatp.com/obj/temai/2d5bb85c2e7f919f403ed6372a8ddc9fwww800-800");
+        spuParamMap.put("discount_price", "9999");
+        spuParamMap.put("freight_id", "0");
+        spuParamMap.put("market_price", "9999");
+        spuParamMap.put("mobile", "13400000001");
+        spuParamMap.put("name", "[测试] 测试商品，不要上架");
+        spuParamMap.put("out_product_id", "test-only");
+        spuParamMap.put("pay_type", "1");
+        spuParamMap.put("pic", "https://sf6-ttcdn-tos.pstatp.com/obj/temai/2d5bb85c2e7f919f403ed6372a8ddc9fwww800-800");
+        spuParamMap.put("presell_type", "0");
+        spuParamMap.put("product_format", "0|11642^419596|17周岁以下^419597|不对称^419598|短裤^419599|树脂固色^419600|原创^419601|71%(含)-80%(含)^419602|^419603|低腰^419604|哈伦裤^419605|桑蚕丝^419606|^419607|超薄");
+        spuParamMap.put("product_id", "test-wj");
+        spuParamMap.put("product_type", "0");
+        spuParamMap.put("recommend_remark", "test only - 不哟啊");
+        spuParamMap.put("reduce_type", "2");
+        spuParamMap.put("remark", "test only");
+        spuParamMap.put("spec_name", "颜色-尺码");
+        spuParamMap.put("spec_pic", "https://sf6-ttcdn-tos.pstatp.com/obj/temai/2d5bb85c2e7f919f403ed6372a8ddc9fwww800-800");
+        spuParamMap.put("spec_prices", "[{\"price\":9999,\"spec_detail_name1\":\"亮白\",\"spec_detail_name2\":\"A/S\",\"stock_num\":11}]");
+        spuParamMap.put("specs", "颜色|亮白^尺码|A/S");
+        spuParamMap.put("supply_7day_return", "1");
+        spuParamMap.put("weight", "1");
+        spuParamMap.put("weight_unit", "0");
+        DoudianGeneralRequest<DoudianProductAddV2Response> request = new DoudianGeneralRequest<>();
+        request.setResponseClass(DoudianProductAddV2Response.class);
+        request.setMethod("product.addV2");
+        request.setParamJson(spuParamMap);
+
+        DoudianProductAddV2Response response = getClient().execute(request);
+        if (!response.isSuccess()) {
+            System.err.println("ProductAddV2失败:" + response.getMessage());
+        } else {
+            System.out.println(JSON.toJSONString(response.getData()));
+        }
+    }
+
+    @Test
+    public void testGetCatePropertyByGeneralRequest() throws ApiException {
+        DoudianGeneralRequest<DoudianProductGetCatePropertyResponse> generalRequest = new DoudianGeneralRequest<>();
+        generalRequest.setMethod("product.getCateProperty");
+        generalRequest.setResponseClass(DoudianProductGetCatePropertyResponse.class);
+        Map<String, Object> objectObjectMap = Maps.newHashMap();
+        objectObjectMap.put("category_leaf_id", "20716");
+        generalRequest.setParamJson(objectObjectMap);
+        DoudianProductGetCatePropertyResponse response = getClient().execute(generalRequest);
+        if (!response.isSuccess()) {
+            System.err.println("根据商品分类获取对应的属性列表失败:" + response.getMessage());
+        } else {
+            List<DoudianProductGetCateProperty> properties = response.getData();
+            System.out.println(JSON.toJSONString(properties));
+        }
+    }
+
     @Test
     public void testGetCateProperty() throws ApiException {
         DoudianProductGetCatePropertyRequest request = new DoudianProductGetCatePropertyRequest();
