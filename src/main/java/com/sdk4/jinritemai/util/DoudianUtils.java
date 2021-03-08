@@ -27,7 +27,11 @@ public class DoudianUtils {
     }
 
     public static String createParamJson(Object object) {
-        return JSON.toJSONString(toStringSortMap(object));
+        String paramJson = JSON.toJSONString(toStringSortMap(object));
+        paramJson = paramJson.replace("&", "\\u0026");
+        paramJson = paramJson.replace("<", "\\u003c");
+        paramJson = paramJson.replace(">", "\\u003e");
+        return paramJson;
     }
 
     public static Map<String, String> toStringSortMap(Object object) {
