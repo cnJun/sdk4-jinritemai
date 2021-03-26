@@ -56,4 +56,9 @@ public interface DoudianClient {
      */
     <T extends DoudianResponse> T execute(DoudianRequest<T> request, String accessToken) throws ApiException;
 
+
+    <T extends DoudianResponse> T execute(DoudianGeneralRequest<T> request) throws ApiException;
+
+    <T extends DoudianResponse> T execute(DoudianGeneralRequest<T> request, String accessToken)
+            throws ApiException;
 }

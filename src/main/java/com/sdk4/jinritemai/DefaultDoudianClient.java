@@ -90,6 +90,56 @@ public class DefaultDoudianClient implements DoudianClient {
     }
 
     @Override
+    public <T extends DoudianResponse> T execute(DoudianGeneralRequest<T> request)
+            throws ApiException {
+        makeSureTokenExist();
+        makeSureTokenValid(request.getResponseClass());
+        return execute(request.getMethod(),
+                DoudianUtils.createParamJson(request.getParamJson()),
+                request.getResponseClass(),
+                accessToken.getAccessToken());
+    }
+
+    @Override
+    public <T extends DoudianResponse> T execute(DoudianGeneralRequest<T> request, String accessToken)
+            throws ApiException {
+        return execute(request.getMethod(),
+                DoudianUtils.createParamJson(request.getParamJson()),
+                request.getResponseClass(),
+                accessToken);
+    }
+
+    private <T extends DoudianResponse> T execute(String method,
+                                                  String paramJson,
+                                                  Class<T> responseClass,
+                                                  String accessToken)
+            throws ApiException {
+        Map<String, String> params = new HashMap<>();
+        params.put("method", method);
+        params.put("app_key", appKey);
+        params.put("param_json", paramJson);
+        params.put("timestamp", DoudianUtils.getTimeString(new Date()));
+        params.put("v", version);
+
+        try {
+            params.put("sign", DoudianUtils.signTopRequest(params, appSecret, signMethod));
+            params.put("sign_method", signMethod);
+            params.put("access_token", accessToken);
+
+            String url = createUrl(serverUrl, method);
+            String query = WebUtils.buildQuery(params, "UTF-8");
+            String fullUrl = WebUtils.buildRequestUrl(url, query);
+            HttpResponseData data = WebUtils
+                    .doPost(fullUrl, new HashMap<>(0), "UTF-8", connectTimeout, readTimeout);
+            System.out.println("doudian request: " + fullUrl);
+            System.out.println("doudian response: " + data.getBody());
+            return JSON.parseObject(data.getBody(), responseClass);
+        } catch (IOException e) {
+            throw new ApiException("API_CALL_ERROR", "接口调用失败", e);
+        }
+    }
+
+    @Override
     public <T extends DoudianResponse> T execute(DoudianRequest<T> request) throws ApiException {
         if (accessToken == null) {
             accessToken = getAccessToken();
@@ -134,6 +184,29 @@ public class DefaultDoudianClient implements DoudianClient {
             return JSON.parseObject(data.getBody(), request.getResponseClass());
         } catch (IOException e) {
             throw new ApiException("API_CALL_ERROR", "接口调用失败", e);
+        }
+    }
+
+    private <T extends DoudianResponse> void makeSureTokenValid(Class<T> resClass)
+            throws ApiException {
+        if (!accessToken.isValid()) {
+            try {
+                T response = resClass.newInstance();
+                response.setErrNo(4444);
+                response.setMessage("access token is invalid");
+            } catch (Exception e) {
+                throw new ApiException("API_CALL_ERROR", "接口调用失败", e);
+            }
+        }
+    }
+
+    private void makeSureTokenExist() {
+        if (accessToken == null) {
+            accessToken = getAccessToken();
+        }
+        if (!accessToken.isValid()) {
+            accessToken = DoudianUtils.isEmpty(accessToken.getRefreshToken()) ? getAccessToken()
+                    : getAccessToken(accessToken.getRefreshToken());
         }
     }
 
